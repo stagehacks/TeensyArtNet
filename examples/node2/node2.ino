@@ -1,26 +1,24 @@
 #include <NativeEthernet.h>
 #include <TeensyDMX.h>
 namespace teensydmx = ::qindesign::teensydmx;
-#include <TeensysACN.h>
+#include <TeensyArtNet.h>
 
 byte MAC_ADDRESS[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-int IP_ADDRESS[] = {192, 168, 1, 90};
 
+
+IPAddress SELF_IP(192, 168, 1, 90);
+IPAddress BROADCAST_IP(192, 168, 1, 255);
 
 elapsedMillis timeSincePacket = 0;
-
-IPAddress SELF_IP(IP_ADDRESS[0], IP_ADDRESS[1], IP_ADDRESS[2], IP_ADDRESS[3]);
 
 teensydmx::Sender dmxTx1{Serial2};
 teensydmx::Sender dmxTx2{Serial1};
 
-
-teensysacn::Receiver port1(1);
-teensysacn::Receiver port2(2);
-
+teensyartnet::Receiver artnetRx;
 
 void setup() {
-
+  Serial.begin(9600);
+  
   Ethernet.begin(MAC_ADDRESS, SELF_IP);
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -29,30 +27,32 @@ void setup() {
   digitalWriteFast(2, HIGH);
   digitalWriteFast(6, HIGH);
 
+  
   dmxTx1.begin();
   dmxTx2.begin();
 
-  port1.begin();
-  port2.begin();
+  artnetRx.begin();
+  artnetRx.addUniverse(5);
+  artnetRx.addUniverse(6);
 }
 
 
 
 void loop() {
 
-  port1.update();
-  if(port1.hasData()){
+  artnetRx.update();
+  
+  if(artnetRx.universeHasData(5)){
     resetIndicatorTimer();
     for(int i=1; i<=512; i++){
-      dmxTx1.set(i, port1.getSlot(i));
+      dmxTx1.set(i, artnetRx.getSlot(5, i));
     }
   }
 
-  port2.update();
-  if(port2.hasData()){
+  if(artnetRx.universeHasData(6)){
     resetIndicatorTimer();
     for(int i=1; i<=512; i++){
-      dmxTx2.set(i, port2.getSlot(i));
+      dmxTx2.set(i, artnetRx.getSlot(6, i));
     }
   }
 
@@ -64,8 +64,6 @@ void loop() {
   }
 
 }
-
-
 
 void resetIndicatorTimer() {
   if (timeSincePacket > 50) {
