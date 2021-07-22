@@ -1,0 +1,19 @@
+{
+  "name": "TeensyArtNet",
+  "description": "A basic library for receiving Art-Net on Teensy 4.1.",
+  "keywords": "dmx, teensy, artnet, ArtNet, Art-Net",
+  "authors": {
+    "name": "Alec Sparks",
+    "email": "alec@stagehacks.com",
+    "maintainer": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stagehacks/TeensyArtNet"
+  },
+  "version": "1.0.0",
+  "license": "MIT",
+  "homepage": "https://github.com/stagehacks/TeensyArtNet",
+  "frameworks": "arduino",
+  "platforms": "teensy"
+}
